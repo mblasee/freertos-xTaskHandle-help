@@ -15,28 +15,18 @@ TaskHandles *TaskHandles::getInstance()
 TaskHandles::TaskHandles()
 {
     ESP_LOGI(TAG, ">>");
+    //if these are uncommented I get the very same exception but this way I am just returning nullptrs
+    //timerHandle = new TaskHandle_t();
+    //timerStopHandle = new TaskHandle_t();
     ESP_LOGI(TAG, "<<");
 }
 
-xTaskHandle TaskHandles::getTimerHandle()
+TaskHandle_t TaskHandles::getTimerHandle()
 {
-    ESP_LOGI(TAG, ">>");
-    if (timerHandle == nullptr)
-    {
-        ESP_LOGI(TAG, "creating new timer handle");
-        timerHandle = new xTaskHandle();
-    }
-    ESP_LOGI(TAG, "<<");
     return timerHandle;
 }
 
-xTaskHandle TaskHandles::getTimerStopHandle()
+TaskHandle_t TaskHandles::getTimerStopHandle()
 {
-    if (timerStopHandle == nullptr)
-    {
-        ESP_LOGI(TAG, "creating new timer stop handle");
-        timerStopHandle = new xTaskHandle();
-    }
-
     return timerStopHandle;
 }

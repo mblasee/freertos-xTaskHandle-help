@@ -8,13 +8,13 @@ public:
     static TaskHandles *getInstance();
     TaskHandles();
 
-    xTaskHandle getTimerHandle();
-    xTaskHandle getTimerStopHandle();
+    TaskHandle_t getTimerHandle();
+    TaskHandle_t getTimerStopHandle();
 
 private:
     static TaskHandles *instance;
-    xTaskHandle *timerHandle = nullptr;
-    xTaskHandle *timerStopHandle = nullptr;
+    TaskHandle_t timerHandle = nullptr;
+    TaskHandle_t timerStopHandle = nullptr;
 };
 
 #endif

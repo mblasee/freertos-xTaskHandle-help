@@ -13,8 +13,8 @@ Controller *Controller::getInstance()
 
 Controller::Controller()
 {
-    xTaskHandle timerTaskHandle = TaskHandles::getInstance()->getTimerHandle();
-    xTaskHandle timerStopTaskHandle = TaskHandles::getInstance()->getTimerStopHandle();
+    TaskHandle_t timerTaskHandle = TaskHandles::getInstance()->getTimerHandle();
+    TaskHandle_t timerStopTaskHandle = TaskHandles::getInstance()->getTimerStopHandle();
 
     xTaskCreatePinnedToCore(Controller::startTimerTask, "startTimerTask", 2000, (void *)this, 5, &timerTaskHandle, 0);
     xTaskCreatePinnedToCore(Controller::startTimerStopTask, "startTimerStopTask", 2000, (void *)this, 5, &timerStopTaskHandle, 0);
@@ -52,7 +52,7 @@ void Controller::timerStopTask()
         if (millis() - currentMillis >= interval)
         {
             ESP_LOGI(TAG, "suspending");
-            xTaskHandle timerTaskHandle = TaskHandles::getInstance()->getTimerHandle();
+            TaskHandle_t timerTaskHandle = TaskHandles::getInstance()->getTimerHandle();
             vTaskSuspend(timerTaskHandle);
         }
     }
