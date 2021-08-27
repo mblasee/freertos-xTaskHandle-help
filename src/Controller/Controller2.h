@@ -1,17 +1,17 @@
-#ifndef Controller_h
-#define Controller_h
+#ifndef Controller2_h
+#define Controller2_h
 #include <Arduino.h>
 
-class Controller
+class Controller2
 {
 public:
-    static Controller *getInstance();
-    Controller();
+    static Controller2 *getInstance();
+    Controller2();
     void startTask();
     void stopTask();
 
 private:
-    static Controller *instance;
+    static Controller2 *instance;
     TaskHandle_t controllerTask;
     static void startTimerTask(void *params);
     void timerTask();

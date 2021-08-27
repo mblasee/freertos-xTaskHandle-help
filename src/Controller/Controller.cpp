@@ -13,11 +13,8 @@ Controller *Controller::getInstance()
 
 Controller::Controller()
 {
-    TaskHandle_t timerTaskHandle = TaskHandles::getInstance()->getTimerHandle();
-    TaskHandle_t timerStopTaskHandle = TaskHandles::getInstance()->getTimerStopHandle();
-
-    xTaskCreatePinnedToCore(Controller::startTimerTask, "startTimerTask", 2000, (void *)this, 5, &timerTaskHandle, 0);
-    xTaskCreatePinnedToCore(Controller::startTimerStopTask, "startTimerStopTask", 2000, (void *)this, 5, &timerStopTaskHandle, 0);
+    xTaskCreatePinnedToCore(Controller::startTimerTask, "startTimerTask", 2000, (void *)this, 5, &controllerTask, 1);
+    vTaskSuspend(controllerTask);
 }
 
 void Controller::startTimerTask(void *pvParameter)
@@ -33,28 +30,46 @@ void Controller::timerTask()
         ESP_LOGI(TAG, "timer increase task");
         vTaskDelay(1000);
     }
-    vTaskDelete(NULL);
+    vTaskDelete(controllerTask);
 }
 
-void Controller::startTimerStopTask(void *pvParameter)
+void Controller::stopTask()
 {
-    ((Controller *)pvParameter)->timerStopTask();
+    ESP_LOGI(TAG, "stopping timer task");
+    vTaskSuspend(controllerTask);
 }
 
-void Controller::timerStopTask()
+void Controller::startTask()
 {
-    ESP_LOGI(TAG, "starting timer stop task");
-    const long interval = 5000;
-    while (true)
-    {
-        static long currentMillis = 0;
-        //after five seconds I am trying to suspend the task
-        if (millis() - currentMillis >= interval)
-        {
-            ESP_LOGI(TAG, "suspending");
-            TaskHandle_t timerTaskHandle = TaskHandles::getInstance()->getTimerHandle();
-            vTaskSuspend(timerTaskHandle);
-        }
-    }
-    vTaskDelete(NULL);
+    ESP_LOGI(TAG, "resuming timer task");
+    vTaskResume(controllerTask);
 }
+
+/*
+log output example
+[I][Controller.cpp:44] startTask(): resuming timer task
+[I][Controller.cpp:27] timerTask(): starting timer task
+[I][Controller.cpp:30] timerTask(): timer increase task
+[I][Controller.cpp:30] timerTask(): timer increase task
+[I][Controller.cpp:30] timerTask(): timer increase task
+[I][Controller.cpp:30] timerTask(): timer increase task
+[I][Controller.cpp:30] timerTask(): timer increase task
+[I][main.cpp:26] loop(): suspending
+[I][Controller.cpp:38] stopTask(): stopping timer task
+[I][Controller2.cpp:27] timerTask(): starting timer task2
+[I][Controller2.cpp:30] timerTask(): timer increase task2
+[I][Controller2.cpp:44] startTask(): resuming timer task2
+[I][Controller2.cpp:30] timerTask(): timer increase task2
+[I][Controller2.cpp:30] timerTask(): timer increase task2
+[I][Controller2.cpp:30] timerTask(): timer increase task2
+[I][Controller2.cpp:30] timerTask(): timer increase task2
+[I][Controller2.cpp:30] timerTask(): timer increase task2
+[I][main.cpp:34] loop(): resuming
+[I][Controller.cpp:44] startTask(): resuming timer task
+[I][Controller.cpp:30] timerTask(): timer increase task
+[I][Controller2.cpp:30] timerTask(): timer increase task2
+[I][Controller.cpp:30] timerTask(): timer increase task
+[I][Controller2.cpp:30] timerTask(): timer increase task2
+[I][Controller.cpp:30] timerTask(): timer increase task
+
+*/
